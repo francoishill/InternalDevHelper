@@ -64,7 +64,7 @@ namespace InternalDevHelper.ViewModels
 
             OpenAllDirectoriesInGitkrakenCommand = new RelayCommand(() =>
             {
-                var exe = @"C:\Users\FrancoisHill\AppData\Local\gitkraken\update.exe";
+                var exe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"gitkraken\update.exe");
                 foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
                 {
                     var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
