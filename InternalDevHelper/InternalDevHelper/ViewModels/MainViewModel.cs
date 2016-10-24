@@ -7,11 +7,15 @@ using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using InternalDevHelper.Notifications;
 using InternalDevHelper.ViewModels.Projects;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace InternalDevHelper.ViewModels
 {
     public class MainViewModel : ViewModelBase, IMainViewModel
     {
+        private readonly TimeSpan LoopDelay = TimeSpan.FromSeconds(2);
+
         private readonly string m_ConfigYamlFilePath;
         private Config.Config m_Config;
 
@@ -51,7 +55,7 @@ namespace InternalDevHelper.ViewModels
 
             ExitApp = new RelayCommand(ExitApplication);
 
-            OpenAllDirectoriesInVSCodeCommand = new RelayCommand(() =>
+            OpenAllDirectoriesInVSCodeCommand = new RelayCommand(async delegate
             {
                 var exe = @"C:\Program Files (x86)\Microsoft VS Code\Code.exe";
                 foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
@@ -59,10 +63,11 @@ namespace InternalDevHelper.ViewModels
                     var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
                     var args = dirToOpen;
                     Process.Start(exe, args);
+                    await Task.Delay(LoopDelay);
                 }
             });
 
-            OpenAllDirectoriesInGitkrakenCommand = new RelayCommand(() =>
+            OpenAllDirectoriesInGitkrakenCommand = new RelayCommand(async delegate
             {
                 var exe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"gitkraken\update.exe");
                 foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
@@ -70,6 +75,7 @@ namespace InternalDevHelper.ViewModels
                     var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
                     var args = $"--processStart=gitkraken.exe --process-start-args=\"-p {dirToOpen}\"";
                     Process.Start(exe, args);
+                    await Task.Delay(LoopDelay);
                 }
             });
         }
