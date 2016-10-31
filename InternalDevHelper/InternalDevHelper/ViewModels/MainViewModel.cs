@@ -22,6 +22,8 @@ namespace InternalDevHelper.ViewModels
         private ICollection<IDevProject> m_VSCodeDirectories;
         private bool m_HasSelectedVSCodeDirectory;
         private DevProject m_SelectedVSCodeDirectory;
+        private int m_BusyIncrement;
+        private bool m_IsBusy;
 
         public MainViewModel()
         {
@@ -57,64 +59,101 @@ namespace InternalDevHelper.ViewModels
 
             OpenAllDirectoriesInVSCodeCommand = new RelayCommand(async delegate
             {
-                var exe = @"C:\Program Files (x86)\Microsoft VS Code\Code.exe";
-                foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                IncrementBusy();
+                try
                 {
-                    var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
-                    var args = dirToOpen;
-                    Process.Start(exe, args);
-                    await Task.Delay(LoopDelay);
+                    var exe = @"C:\Program Files (x86)\Microsoft VS Code\Code.exe";
+                    foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                    {
+                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
+                        var args = dirToOpen;
+                        Process.Start(exe, args);
+                        await Task.Delay(LoopDelay);
+                    }
+                }
+                finally
+                {
+                    DecrementBusy();
                 }
             });
 
             OpenAllDirectoriesInGitkrakenCommand = new RelayCommand(async delegate
             {
-                var exe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"gitkraken\update.exe");
-                foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                IncrementBusy();
+                try
                 {
-                    var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
-                    var args = $"--processStart=gitkraken.exe --process-start-args=\"-p {dirToOpen}\"";
-                    Process.Start(exe, args);
-                    await Task.Delay(LoopDelay);
+                    var exe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"gitkraken\update.exe");
+                    foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                    {
+                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
+                        var args = $"--processStart=gitkraken.exe --process-start-args=\"-p {dirToOpen}\"";
+                        Process.Start(exe, args);
+                        await Task.Delay(LoopDelay);
+                    }
+                }
+                finally
+                {
+                    DecrementBusy();
                 }
             });
 
             SignDroneCIYamlForAllDirectoriesCommand = new RelayCommand(async delegate
             {
-                var exe = "drone";
-                foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                IncrementBusy();
+                try
                 {
-                    var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
-                    var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
-                    if (!dir.StartsWith(prefixToRemove))
+                    var exe = "drone";
+                    foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
                     {
-                        PopupNotificationBuilder.New()
-                            .WithMessage("Directory '{0}' does not start with expected prefix '{1}'", dir, prefixToRemove)
-                            .Topmost()
-                            .Show();
-                        continue;
-                    }
+                        var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
+                        var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
+                        if (!dir.StartsWith(prefixToRemove))
+                        {
+                            PopupNotificationBuilder.New()
+                                .WithMessage("Directory '{0}' does not start with expected prefix '{1}'", dir, prefixToRemove)
+                                .Topmost()
+                                .Show();
+                            continue;
+                        }
 
-                    var droneProjectRelativeURL = dir
-                        .Substring(prefixToRemove.Length)
-                        .TrimStart('\\')
-                        .Replace("\\", "/");
+                        var droneProjectRelativeURL = dir
+                            .Substring(prefixToRemove.Length)
+                            .TrimStart('\\')
+                            .Replace("\\", "/");
 
-                    var startInfo = new ProcessStartInfo(exe, $"sign {droneProjectRelativeURL}") {
-                        WorkingDirectory = dir,
-                    };
-                    var runner = new Utils.ProcessUtils.Runner(startInfo);
-                    var result = await Task.Run(() => runner.RunAndWait());
-                    if (!result.Success(true))
-                    {
-                        PopupNotificationBuilder.New()
-                            .WithMessage("Unable to sign drone yaml for dir '{0}', error:\n\n{1}", dir, result.GetDisplayError())
-                            .Topmost()
-                            .Show();
-                        continue;
+                        var startInfo = new ProcessStartInfo(exe, $"sign {droneProjectRelativeURL}")
+                        {
+                            WorkingDirectory = dir,
+                        };
+                        var runner = new Utils.ProcessUtils.Runner(startInfo);
+                        var result = await Task.Run(() => runner.RunAndWait());
+                        if (!result.Success(true))
+                        {
+                            PopupNotificationBuilder.New()
+                                .WithMessage("Unable to sign drone yaml for dir '{0}', error:\n\n{1}", dir, result.GetDisplayError())
+                                .Topmost()
+                                .Show();
+                            continue;
+                        }
                     }
                 }
+                finally
+                {
+                    DecrementBusy();
+                }
             });
+        }
+
+        private void IncrementBusy()
+        {
+            m_BusyIncrement++;
+            IsBusy = m_BusyIncrement > 0;
+        }
+
+        private void DecrementBusy()
+        {
+            m_BusyIncrement--;
+            IsBusy = m_BusyIncrement > 0;
         }
 
         private void OpenConfigFile()
@@ -202,6 +241,17 @@ namespace InternalDevHelper.ViewModels
         {
             get;
             private set;
+        }
+
+        public bool IsBusy
+        {
+            get { return m_IsBusy; }
+            private set
+            {
+                if (m_IsBusy == value) return;
+                m_IsBusy = value;
+                RaisePropertyChanged(() => IsBusy);
+            }
         }
     }
 }

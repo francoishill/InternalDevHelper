@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:viewModels="clr-namespace:InternalDevHelper.ViewModels"
                     xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+                    xmlns:fa="http://schemas.fontawesome.io/icons/"
                     xmlns:command="http://www.galasoft.ch/mvvmlight"
                     xmlns:projects="clr-namespace:InternalDevHelper.ViewModels.Projects"
                     xmlns:devProjects="clr-namespace:InternalDevHelper.ViewModels.Projects.DevProjects">
@@ -68,11 +69,21 @@
 
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <TextBlock Text="{Binding SelectedVSCodeDirectory.DisplayName}" FontSize="10"/>
 
-                    <StackPanel Grid.Row="1"
+                    <fa:ImageAwesome Grid.Row="1"
+                                     Icon="Refresh" 
+                                     Spin="True" 
+                                     Height="16" 
+                                     Width="16"
+                                     Margin="0 10 0 0"
+                                     HorizontalAlignment="Left"
+                                     Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverterCollapsedIfFalse}}" />
+
+                    <StackPanel Grid.Row="2"
                                 Margin="0 10 0 0"
                                 Orientation="Vertical">
                         <StackPanel.Resources>
