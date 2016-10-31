@@ -85,6 +85,9 @@
     </ApplicationDefinition>
     <Compile Include="Config\Config.cs" />
     <Compile Include="Notifications\PopupNotificationBuilder.cs" />
+    <Compile Include="Utils\ProcessUtils\FeedbackLine.cs" />
+    <Compile Include="Utils\ProcessUtils\Result.cs" />
+    <Compile Include="Utils\ProcessUtils\Runner.cs" />
     <Compile Include="Utils\WpfConverters\BooleanToVisibilityConverter.cs" />
     <Compile Include="ViewModels\Projects\DevProject.cs" />
     <Compile Include="ViewModels\Projects\DevProjects\IProjectDirectory.cs" />
