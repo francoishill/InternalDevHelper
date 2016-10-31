@@ -78,12 +78,12 @@
                         <StackPanel.Resources>
                             <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
                                 <Setter Property="Margin" Value="0 0 0 10"/>
+                                <Setter Property="HorizontalAlignment" Value="Left"/>
+                                <Setter Property="VerticalAlignment" Value="Top"/>
                             </Style>
                         </StackPanel.Resources>
 
-                        <Button Content="Open in VSCode"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Top">
+                        <Button Content="Open in VSCode">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <command:EventToCommand Command="{Binding OpenAllDirectoriesInVSCodeCommand}" />
@@ -91,12 +91,18 @@
                             </i:Interaction.Triggers>
                         </Button>
 
-                        <Button Content="Open in Gitkraken"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Top">
+                        <Button Content="Open in Gitkraken">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <command:EventToCommand Command="{Binding OpenAllDirectoriesInGitkrakenCommand}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+
+                        <Button Content="Drone CI sign YAML">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <command:EventToCommand Command="{Binding SignDroneCIYamlForAllDirectoriesCommand}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>

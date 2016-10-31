@@ -78,6 +78,43 @@ namespace InternalDevHelper.ViewModels
                     await Task.Delay(LoopDelay);
                 }
             });
+
+            SignDroneCIYamlForAllDirectoriesCommand = new RelayCommand(async delegate
+            {
+                var exe = "drone";
+                foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                {
+                    var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
+                    var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
+                    if (!dir.StartsWith(prefixToRemove))
+                    {
+                        PopupNotificationBuilder.New()
+                            .WithMessage("Directory '{0}' does not start with expected prefix '{1}'", dir, prefixToRemove)
+                            .Topmost()
+                            .Show();
+                        continue;
+                    }
+
+                    var droneProjectRelativeURL = dir
+                        .Substring(prefixToRemove.Length)
+                        .TrimStart('\\')
+                        .Replace("\\", "/");
+
+                    var startInfo = new ProcessStartInfo(exe, $"sign {droneProjectRelativeURL}") {
+                        WorkingDirectory = dir,
+                    };
+                    var runner = new Utils.ProcessUtils.Runner(startInfo);
+                    var result = await Task.Run(() => runner.RunAndWait());
+                    if (!result.Success(true))
+                    {
+                        PopupNotificationBuilder.New()
+                            .WithMessage("Unable to sign drone yaml for dir '{0}', error:\n\n{1}", dir, result.GetDisplayError())
+                            .Topmost()
+                            .Show();
+                        continue;
+                    }
+                }
+            });
         }
 
         private void OpenConfigFile()
@@ -148,6 +185,7 @@ namespace InternalDevHelper.ViewModels
             get;
             private set;
         }
+
         public RelayCommand OpenAllDirectoriesInVSCodeCommand
         {
             get;
@@ -155,6 +193,12 @@ namespace InternalDevHelper.ViewModels
         }
 
         public RelayCommand OpenAllDirectoriesInGitkrakenCommand
+        {
+            get;
+            private set;
+        }
+
+        public RelayCommand SignDroneCIYamlForAllDirectoriesCommand
         {
             get;
             private set;
