@@ -103,7 +103,8 @@ namespace InternalDevHelper.ViewModels
                 try
                 {
                     var exe = "drone";
-                    foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+
+                    var tasks = SelectedVSCodeDirectory.Directories.Select(async projectDirectory =>
                     {
                         var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
                         var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
@@ -113,7 +114,7 @@ namespace InternalDevHelper.ViewModels
                                 .WithMessage("Directory '{0}' does not start with expected prefix '{1}'", dir, prefixToRemove)
                                 .Topmost()
                                 .Show();
-                            continue;
+                            return;
                         }
 
                         var droneProjectRelativeURL = dir
@@ -133,9 +134,10 @@ namespace InternalDevHelper.ViewModels
                                 .WithMessage("Unable to sign drone yaml for dir '{0}', error:\n\n{1}", dir, result.GetDisplayError())
                                 .Topmost()
                                 .Show();
-                            continue;
+                            return;
                         }
-                    }
+                    });
+                    await Task.WhenAll(tasks);
                 }
                 finally
                 {
