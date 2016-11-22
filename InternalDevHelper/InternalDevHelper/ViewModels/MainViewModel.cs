@@ -97,53 +97,60 @@ namespace InternalDevHelper.ViewModels
                 }
             });
 
-            SignDroneCIYamlForAllDirectoriesCommand = new RelayCommand(async delegate
+            SignDroneCIYamlForAllDirectoriesCommand = new RelayCommand(delegate
             {
-                IncrementBusy();
-                try
-                {
-                    var exe = "drone";
-
-                    var tasks = SelectedVSCodeDirectory.Directories.Select(async projectDirectory =>
-                    {
-                        var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
-                        var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
-                        if (!dir.StartsWith(prefixToRemove))
-                        {
-                            PopupNotificationBuilder.New()
-                                .WithMessage("Directory '{0}' does not start with expected prefix '{1}'", dir, prefixToRemove)
-                                .Topmost()
-                                .Show();
-                            return;
-                        }
-
-                        var droneProjectRelativeURL = dir
-                            .Substring(prefixToRemove.Length)
-                            .TrimStart('\\')
-                            .Replace("\\", "/");
-
-                        var startInfo = new ProcessStartInfo(exe, $"sign {droneProjectRelativeURL}")
-                        {
-                            WorkingDirectory = dir,
-                        };
-                        var runner = new Utils.ProcessUtils.Runner(startInfo);
-                        var result = await Task.Run(() => runner.RunAndWait());
-                        if (!result.Success(true))
-                        {
-                            PopupNotificationBuilder.New()
-                                .WithMessage("Unable to sign drone yaml for dir '{0}', error:\n\n{1}", dir, result.GetDisplayError())
-                                .Topmost()
-                                .Show();
-                            return;
-                        }
-                    });
-                    await Task.WhenAll(tasks);
-                }
-                finally
-                {
-                    DecrementBusy();
-                }
+                PopupNotificationBuilder.New()
+                    .WithMessage(@"Please rather use DevOps tool github.com\golang-devops\auto_droneci_watcher")
+                    .Topmost()
+                    .Show();
             });
+            //SignDroneCIYamlForAllDirectoriesCommand = new RelayCommand(async delegate
+            //{
+            //    IncrementBusy();
+            //    try
+            //    {
+            //        var exe = "drone";
+
+            //        var tasks = SelectedVSCodeDirectory.Directories.Select(async projectDirectory =>
+            //        {
+            //            var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
+            //            var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
+            //            if (!dir.StartsWith(prefixToRemove))
+            //            {
+            //                PopupNotificationBuilder.New()
+            //                    .WithMessage("Directory '{0}' does not start with expected prefix '{1}'", dir, prefixToRemove)
+            //                    .Topmost()
+            //                    .Show();
+            //                return;
+            //            }
+
+            //            var droneProjectRelativeURL = dir
+            //                .Substring(prefixToRemove.Length)
+            //                .TrimStart('\\')
+            //                .Replace("\\", "/");
+
+            //            var startInfo = new ProcessStartInfo(exe, $"sign {droneProjectRelativeURL}")
+            //            {
+            //                WorkingDirectory = dir,
+            //            };
+            //            var runner = new Utils.ProcessUtils.Runner(startInfo);
+            //            var result = await Task.Run(() => runner.RunAndWait());
+            //            if (!result.Success(true))
+            //            {
+            //                PopupNotificationBuilder.New()
+            //                    .WithMessage("Unable to sign drone yaml for dir '{0}', error:\n\n{1}", dir, result.GetDisplayError())
+            //                    .Topmost()
+            //                    .Show();
+            //                return;
+            //            }
+            //        });
+            //        await Task.WhenAll(tasks);
+            //    }
+            //    finally
+            //    {
+            //        DecrementBusy();
+            //    }
+            //});
         }
 
         private void IncrementBusy()
