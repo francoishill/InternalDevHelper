@@ -94,8 +94,6 @@
     <Compile Include="Utils\ProcessUtils\Runner.cs" />
     <Compile Include="Utils\WpfConverters\BooleanToVisibilityConverter.cs" />
     <Compile Include="ViewModels\Projects\DevProject.cs" />
-    <Compile Include="ViewModels\Projects\DevProjects\IProjectDirectory.cs" />
-    <Compile Include="ViewModels\Projects\DevProjects\ProjectDirectory.cs" />
     <Compile Include="ViewModels\Projects\IDevProject.cs" />
     <Compile Include="ViewModels\IMainViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />

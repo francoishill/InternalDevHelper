@@ -1,15 +1,36 @@
 ﻿using System.Collections.Generic;
 using GalaSoft.MvvmLight;
-using InternalDevHelper.ViewModels.Projects.DevProjects;
 
 namespace InternalDevHelper.ViewModels.Projects
 {
     public class DevProject : ViewModelBase, IDevProject
     {
-        public DevProject(string displayName, ICollection<IProjectDirectory> directories)
+        private bool m_IsSelected;
+
+        public DevProject(string displayName, ICollection<string> directories)
         {
             DisplayName = displayName;
             Directories = directories;
+            ChildProjects = new List<IDevProject>();
+        }
+
+        public void AddChildProject(IDevProject childProject)
+        {
+            ChildProjects.Add(childProject);
+        }
+
+        public bool IsSelected
+        {
+            get
+            {
+                return m_IsSelected;
+            }
+            set
+            {
+                if (m_IsSelected == value) return;
+                m_IsSelected = value;
+                RaisePropertyChanged(() => IsSelected);
+            }
         }
 
         public string DisplayName
@@ -17,7 +38,12 @@ namespace InternalDevHelper.ViewModels.Projects
             get;
         }
 
-        public ICollection<IProjectDirectory> Directories
+        public ICollection<string> Directories
+        {
+            get;
+        }
+
+        public ICollection<IDevProject> ChildProjects
         {
             get;
         }

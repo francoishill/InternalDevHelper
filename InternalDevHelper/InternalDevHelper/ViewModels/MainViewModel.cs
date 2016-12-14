@@ -21,7 +21,7 @@ namespace InternalDevHelper.ViewModels
 
         private ICollection<IDevProject> m_VSCodeDirectories;
         private bool m_HasSelectedVSCodeDirectory;
-        private DevProject m_SelectedVSCodeDirectory;
+        private IDevProject m_SelectedVSCodeDirectory;
         private int m_BusyIncrement;
         private bool m_IsBusy;
 
@@ -63,9 +63,9 @@ namespace InternalDevHelper.ViewModels
                 try
                 {
                     var exe = @"C:\Program Files (x86)\Microsoft VS Code\Code.exe";
-                    foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
                     {
-                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
+                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = dirToOpen;
                         Process.Start(exe, args);
                         await Task.Delay(LoopDelay);
@@ -83,9 +83,9 @@ namespace InternalDevHelper.ViewModels
                 try
                 {
                     var exe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"gitkraken\update.exe");
-                    foreach (var projectDirectory in SelectedVSCodeDirectory.Directories)
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
                     {
-                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory.Directory);
+                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = $"--processStart=gitkraken.exe --process-start-args=\"-p {dirToOpen}\"";
                         Process.Start(exe, args);
                         await Task.Delay(LoopDelay);
@@ -111,7 +111,7 @@ namespace InternalDevHelper.ViewModels
             //    {
             //        var exe = "drone";
 
-            //        var tasks = SelectedVSCodeDirectory.Directories.Select(async projectDirectory =>
+            //        var tasks = GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory).Select(async projectDirectory =>
             //        {
             //            var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
             //            var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
@@ -184,6 +184,50 @@ namespace InternalDevHelper.ViewModels
 
             m_Config = Config.Config.Load(m_ConfigYamlFilePath);
             m_VSCodeDirectories = m_Config.ToProjectList().ToList();
+
+            foreach (var project in GetFlattenProjects())
+            {
+                //TODO: "unsafe" cast
+                var tmpProj = (DevProject)project;
+                tmpProj.PropertyChanged += (sender, eventArgs) =>
+                {
+                    if (eventArgs.PropertyName == "IsSelected")
+                    {
+                        OnSelectedProjectChanged();
+                    }
+                };
+            }
+        }
+
+        private void OnSelectedProjectChanged()
+        {
+            SelectedVSCodeDirectory = GetFlattenProjects().FirstOrDefault(p => p.IsSelected);
+        }
+
+        private List<IDevProject> GetFlattenProjects()
+        {
+            var flattenedList = new List<IDevProject>();
+            foreach (var proj in m_VSCodeDirectories)
+            {
+                AddFlattenProjects(flattenedList, proj);
+            }
+            return flattenedList;
+        }
+
+        private void AddFlattenProjects(List<IDevProject> flattenedList, IDevProject parentProject)
+        {
+            flattenedList.Add(parentProject);
+            foreach (var childProject in parentProject.ChildProjects)
+            {
+                AddFlattenProjects(flattenedList, childProject);
+            }
+        }
+
+        private List<string> GetFlattenedDirectoriesOfProject(IDevProject project)
+        {
+            var flattenedList = new List<IDevProject>();
+            AddFlattenProjects(flattenedList, project);
+            return flattenedList.SelectMany(p => p.Directories).ToList();
         }
 
         public ICollection<IDevProject> VSCodeDirectories
@@ -208,7 +252,7 @@ namespace InternalDevHelper.ViewModels
             }
         }
 
-        public DevProject SelectedVSCodeDirectory
+        public IDevProject SelectedVSCodeDirectory
         {
             get
             {

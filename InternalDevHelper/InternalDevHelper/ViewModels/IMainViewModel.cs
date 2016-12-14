@@ -16,7 +16,7 @@ namespace InternalDevHelper.ViewModels
             get;
         }
 
-        DevProject SelectedVSCodeDirectory
+        IDevProject SelectedVSCodeDirectory
         {
             get;
             set;

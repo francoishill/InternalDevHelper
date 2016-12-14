@@ -1,18 +1,30 @@
 ﻿using System.Collections.Generic;
-using InternalDevHelper.ViewModels.Projects.DevProjects;
 
 namespace InternalDevHelper.ViewModels.Projects
 {
     public interface IDevProject
     {
+        bool IsSelected
+        {
+            get;
+            set;
+        }
+
         string DisplayName
         {
             get;
         }
 
-        ICollection<IProjectDirectory> Directories
+        ICollection<string> Directories
         {
             get;
         }
+
+        ICollection<IDevProject> ChildProjects
+        {
+            get;
+        }
+
+        void AddChildProject(IDevProject childProject);
     }
 }

@@ -2,7 +2,6 @@
 using System.IO;
 using System.Linq;
 using InternalDevHelper.ViewModels.Projects;
-using InternalDevHelper.ViewModels.Projects.DevProjects;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 // ReSharper disable MemberCanBePrivate.Global
@@ -53,12 +52,30 @@ namespace InternalDevHelper.Config
 
         private static IDevProject ConvertProject(ConfigDevProject project)
         {
-            return new DevProject(project.Name, project.Directories.Select(ConvertDirectory).ToList());
+            var currentDevProject = NewDevProjectFromConfig(project);
+            if (project.HasChildProjects())
+            {
+                AppendDevProjectChildren(currentDevProject, project.ChildProjects);
+            }
+            return currentDevProject;
         }
 
-        private static IProjectDirectory ConvertDirectory(ConfigDevProject.ProjectDirectory directory)
+        private static void AppendDevProjectChildren(IDevProject parentProject, ConfigDevProject[] childProjects)
         {
-            return new ProjectDirectory(directory.Name, directory.Path);
+            foreach (var childProject in childProjects)
+            {
+                var childDevProject = NewDevProjectFromConfig(childProject);
+                parentProject.AddChildProject(childDevProject);
+                if (childProject.HasChildProjects())
+                {
+                    AppendDevProjectChildren(childDevProject, childProject.ChildProjects);
+                }
+            }
+        }
+
+        private static DevProject NewDevProjectFromConfig(ConfigDevProject project)
+        {
+            return new DevProject(project.Name, project.Directories != null ? project.Directories.ToList() : new List<string>());
         }
 
         public class ConfigDevProject
@@ -69,25 +86,21 @@ namespace InternalDevHelper.Config
                 set;
             }
 
-            public ProjectDirectory[] Directories
+            public string[] Directories
             {
                 get;
                 set;
             }
 
-            public class ProjectDirectory
+            public ConfigDevProject[] ChildProjects
             {
-                public string Name
-                {
-                    get;
-                    set;
-                }
+                get;
+                set;
+            }
 
-                public string Path
-                {
-                    get;
-                    set;
-                }
+            public bool HasChildProjects()
+            {
+                return ChildProjects != null && ChildProjects.Length > 0;
             }
         }
     }
