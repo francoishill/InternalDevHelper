@@ -76,7 +76,7 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <TextBlock Text="{Binding SelectedVSCodeDirectory.DisplayName}" FontSize="10"/>
+                    <TextBlock Text="{Binding SelectedVSCodeDirectory.DisplayName}" FontSize="12"/>
 
                     <fa:ImageAwesome Grid.Row="1"
                                      Icon="Refresh" 
