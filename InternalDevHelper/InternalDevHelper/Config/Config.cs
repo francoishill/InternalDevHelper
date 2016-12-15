@@ -12,6 +12,12 @@ namespace InternalDevHelper.Config
 {
     public class Config
     {
+        public ProjectSorting SortProjects
+        {
+            get;
+            set;
+        }
+
         public ConfigDevProject[] DevProjects
         {
             get;

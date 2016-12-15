@@ -148,7 +148,7 @@ namespace InternalDevHelper.ViewModels
             }
 
             m_Config = Config.Config.Load(m_ConfigYamlFilePath);
-            m_VSCodeDirectories = m_Config.ToProjectList().ToList();
+            m_VSCodeDirectories = GetProjectListFromConfig(m_Config);
 
             foreach (var project in GetFlattenProjects())
             {
@@ -162,6 +162,16 @@ namespace InternalDevHelper.ViewModels
                     }
                 };
             }
+        }
+
+        private static List<IDevProject> GetProjectListFromConfig(Config.Config config)
+        {
+            var tmp = config.ToProjectList();
+            if (config.SortProjects == Config.ProjectSorting.Alphabetically)
+            {
+                tmp = tmp.OrderBy(p => p.DisplayName);
+            }
+            return tmp.ToList();
         }
 
         private void OnSelectedProjectChanged()

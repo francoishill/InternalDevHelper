@@ -88,6 +88,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Config\Config.cs" />
+    <Compile Include="Config\ProjectSorting.cs" />
     <Compile Include="Notifications\PopupNotificationBuilder.cs" />
     <Compile Include="Utils\ProcessUtils\FeedbackLine.cs" />
     <Compile Include="Utils\ProcessUtils\Result.cs" />
