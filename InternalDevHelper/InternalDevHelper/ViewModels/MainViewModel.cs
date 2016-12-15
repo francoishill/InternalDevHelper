@@ -14,7 +14,8 @@ namespace InternalDevHelper.ViewModels
 {
     public class MainViewModel : ViewModelBase, IMainViewModel
     {
-        private readonly TimeSpan LoopDelay = TimeSpan.FromSeconds(2);
+        private readonly TimeSpan LongLoopDelay = TimeSpan.FromSeconds(2);
+        private readonly TimeSpan ShortLoopDelay = TimeSpan.FromMilliseconds(500);
 
         private readonly string m_ConfigYamlFilePath;
         private Config.Config m_Config;
@@ -68,7 +69,7 @@ namespace InternalDevHelper.ViewModels
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = dirToOpen;
                         Process.Start(exe, args);
-                        await Task.Delay(LoopDelay);
+                        await Task.Delay(ShortLoopDelay);
                     }
                 }
                 finally
@@ -88,7 +89,7 @@ namespace InternalDevHelper.ViewModels
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = $"--processStart=gitkraken.exe --process-start-args=\"-p {dirToOpen}\"";
                         Process.Start(exe, args);
-                        await Task.Delay(LoopDelay);
+                        await Task.Delay(LongLoopDelay);
                     }
                 }
                 finally
@@ -97,60 +98,24 @@ namespace InternalDevHelper.ViewModels
                 }
             });
 
-            SignDroneCIYamlForAllDirectoriesCommand = new RelayCommand(delegate
+            OpenInExplorerCommand = new RelayCommand(async delegate
             {
-                PopupNotificationBuilder.New()
-                    .WithMessage(@"Please rather use DevOps tool github.com\golang-devops\auto_droneci_watcher")
-                    .Topmost()
-                    .Show();
+                IncrementBusy();
+                try
+                {
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    {
+                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
+                        var args = $"\"{dirToOpen}\"";
+                        Process.Start("explorer", args);
+                        await Task.Delay(ShortLoopDelay);
+                    }
+                }
+                finally
+                {
+                    DecrementBusy();
+                }
             });
-            //SignDroneCIYamlForAllDirectoriesCommand = new RelayCommand(async delegate
-            //{
-            //    IncrementBusy();
-            //    try
-            //    {
-            //        var exe = "drone";
-
-            //        var tasks = GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory).Select(async projectDirectory =>
-            //        {
-            //            var dir = Environment.ExpandEnvironmentVariables(projectDirectory.Directory).Replace("/", "\\").TrimEnd('\\');
-            //            var prefixToRemove = Path.Combine(Environment.ExpandEnvironmentVariables("%GOPATH%"), @"src\gogs.firepuma.com");
-            //            if (!dir.StartsWith(prefixToRemove))
-            //            {
-            //                PopupNotificationBuilder.New()
-            //                    .WithMessage("Directory '{0}' does not start with expected prefix '{1}'", dir, prefixToRemove)
-            //                    .Topmost()
-            //                    .Show();
-            //                return;
-            //            }
-
-            //            var droneProjectRelativeURL = dir
-            //                .Substring(prefixToRemove.Length)
-            //                .TrimStart('\\')
-            //                .Replace("\\", "/");
-
-            //            var startInfo = new ProcessStartInfo(exe, $"sign {droneProjectRelativeURL}")
-            //            {
-            //                WorkingDirectory = dir,
-            //            };
-            //            var runner = new Utils.ProcessUtils.Runner(startInfo);
-            //            var result = await Task.Run(() => runner.RunAndWait());
-            //            if (!result.Success(true))
-            //            {
-            //                PopupNotificationBuilder.New()
-            //                    .WithMessage("Unable to sign drone yaml for dir '{0}', error:\n\n{1}", dir, result.GetDisplayError())
-            //                    .Topmost()
-            //                    .Show();
-            //                return;
-            //            }
-            //        });
-            //        await Task.WhenAll(tasks);
-            //    }
-            //    finally
-            //    {
-            //        DecrementBusy();
-            //    }
-            //});
         }
 
         private void IncrementBusy()
@@ -290,7 +255,7 @@ namespace InternalDevHelper.ViewModels
             private set;
         }
 
-        public RelayCommand SignDroneCIYamlForAllDirectoriesCommand
+        public RelayCommand OpenInExplorerCommand
         {
             get;
             private set;

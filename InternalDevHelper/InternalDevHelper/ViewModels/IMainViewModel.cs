@@ -42,7 +42,7 @@ namespace InternalDevHelper.ViewModels
             get;
         }
 
-        RelayCommand SignDroneCIYamlForAllDirectoriesCommand
+        RelayCommand OpenInExplorerCommand
         {
             get;
         }

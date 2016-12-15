@@ -114,10 +114,10 @@
                             </i:Interaction.Triggers>
                         </Button>
 
-                        <Button Content="Drone CI sign YAML">
+                        <Button Content="Open in Explorer">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
-                                    <command:EventToCommand Command="{Binding SignDroneCIYamlForAllDirectoriesCommand}" />
+                                    <command:EventToCommand Command="{Binding OpenInExplorerCommand}" />
                                 </i:EventTrigger>
                             </i:Interaction.Triggers>
                         </Button>
