@@ -122,6 +122,14 @@
                             </i:Interaction.Triggers>
                         </Button>
 
+                        <Button Content="ConEmu">
+                            <i:Interaction.Triggers>
+                                <i:EventTrigger EventName="Click">
+                                    <command:EventToCommand Command="{Binding OpenInConEmu}" />
+                                </i:EventTrigger>
+                            </i:Interaction.Triggers>
+                        </Button>
+
                     </StackPanel>
                 </Grid>
             </Grid>

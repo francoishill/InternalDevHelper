@@ -46,5 +46,10 @@ namespace InternalDevHelper.ViewModels
         {
             get;
         }
+
+        RelayCommand OpenInConEmu
+        {
+            get;
+        }
     }
 }

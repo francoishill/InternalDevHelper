@@ -116,6 +116,26 @@ namespace InternalDevHelper.ViewModels
                     DecrementBusy();
                 }
             });
+
+            OpenInConEmu = new RelayCommand(async delegate
+            {
+                IncrementBusy();
+                try
+                {
+                    var exe = @"C:\Program Files\ConEmu\ConEmu64.exe";
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    {
+                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
+                        var args = $"-here -dir \"{dirToOpen}\" -run {{cmd}} -cur_console:n";
+                        Process.Start(exe, args);
+                        await Task.Delay(ShortLoopDelay);
+                    }
+                }
+                finally
+                {
+                    DecrementBusy();
+                }
+            });
         }
 
         private void IncrementBusy()
@@ -266,6 +286,12 @@ namespace InternalDevHelper.ViewModels
         }
 
         public RelayCommand OpenInExplorerCommand
+        {
+            get;
+            private set;
+        }
+
+        public RelayCommand OpenInConEmu
         {
             get;
             private set;
