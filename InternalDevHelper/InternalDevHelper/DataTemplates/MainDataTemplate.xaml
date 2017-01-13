@@ -98,7 +98,7 @@
                             </Style>
                         </StackPanel.Resources>
 
-                        <Button Content="Open in VSCode">
+                        <Button Content="VSCode">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <command:EventToCommand Command="{Binding OpenAllDirectoriesInVSCodeCommand}" />
@@ -106,7 +106,7 @@
                             </i:Interaction.Triggers>
                         </Button>
 
-                        <Button Content="Open in Gitkraken">
+                        <Button Content="Gitkraken">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <command:EventToCommand Command="{Binding OpenAllDirectoriesInGitkrakenCommand}" />
@@ -114,7 +114,7 @@
                             </i:Interaction.Triggers>
                         </Button>
 
-                        <Button Content="Open in Explorer">
+                        <Button Content="Explorer">
                             <i:Interaction.Triggers>
                                 <i:EventTrigger EventName="Click">
                                     <command:EventToCommand Command="{Binding OpenInExplorerCommand}" />
