@@ -9,6 +9,7 @@ using InternalDevHelper.Notifications;
 using InternalDevHelper.ViewModels.Projects;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 
 namespace InternalDevHelper.ViewModels
 {
@@ -25,6 +26,11 @@ namespace InternalDevHelper.ViewModels
         private IDevProject m_SelectedVSCodeDirectory;
         private int m_BusyIncrement;
         private bool m_IsBusy;
+        private string m_Base64Input;
+        private string m_Base64Output;
+        private int m_RandomStringLength;
+        private string m_SelectedRandomStringLetterChoice;
+        private string m_RandomStringOutput;
 
         public MainViewModel()
         {
@@ -136,6 +142,14 @@ namespace InternalDevHelper.ViewModels
                     DecrementBusy();
                 }
             });
+
+            RandomStringLetterChoices = new ReadOnlyCollection<string>(new List<string>
+            {
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ",
+                "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456890",
+            });
+            SelectedRandomStringLetterChoice = RandomStringLetterChoices.First();
+            RandomStringLength = 10;
         }
 
         private void IncrementBusy()
@@ -306,6 +320,108 @@ namespace InternalDevHelper.ViewModels
                 m_IsBusy = value;
                 RaisePropertyChanged(() => IsBusy);
             }
+        }
+
+        public string Base64Input
+        {
+            get
+            {
+                return m_Base64Input;
+            }
+            set
+            {
+                if (m_Base64Input == value) return;
+                m_Base64Input = value;
+                RaisePropertyChanged(() => Base64Input);
+                GenerateBase64Output();
+            }
+        }
+
+        public string Base64Output
+        {
+            get
+            {
+                return m_Base64Output;
+            }
+            set
+            {
+                if (m_Base64Output == value) return;
+                m_Base64Output = value;
+                RaisePropertyChanged(() => Base64Output);
+            }
+        }
+
+        private void GenerateBase64Output()
+        {
+            Base64Output = Base64Encode(Base64Input);
+        }
+
+        private static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return Convert.ToBase64String(plainTextBytes);
+        }
+
+        public ICollection<string> RandomStringLetterChoices
+        {
+            get;
+            private set;
+        }
+
+        public string SelectedRandomStringLetterChoice
+        {
+            get
+            {
+                return m_SelectedRandomStringLetterChoice;
+            }
+            set
+            {
+                if (m_SelectedRandomStringLetterChoice == value) return;
+                m_SelectedRandomStringLetterChoice = value;
+                RaisePropertyChanged(() => SelectedRandomStringLetterChoice);
+                GenerateRandomString();
+            }
+        }
+
+        public int RandomStringLength
+        {
+            get
+            {
+                return m_RandomStringLength;
+            }
+            set
+            {
+                if (m_RandomStringLength == value) return;
+                m_RandomStringLength = value;
+                RaisePropertyChanged(() => RandomStringLength);
+                GenerateRandomString();
+            }
+        }
+
+        public string RandomStringOutput
+        {
+            get
+            {
+                return m_RandomStringOutput;
+            }
+            set
+            {
+                if (m_RandomStringOutput == value) return;
+                m_RandomStringOutput = value;
+                RaisePropertyChanged(() => RandomStringOutput);
+            }
+        }
+
+        private void GenerateRandomString()
+        {
+            RandomStringOutput = RandomString();
+        }
+
+        private static Random random = new Random();
+        private string RandomString()
+        {
+            return new string(Enumerable.Repeat(SelectedRandomStringLetterChoice, RandomStringLength)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

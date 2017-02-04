@@ -5,7 +5,8 @@
                     xmlns:fa="http://schemas.fontawesome.io/icons/"
                     xmlns:command="http://www.galasoft.ch/mvvmlight"
                     xmlns:projects="clr-namespace:InternalDevHelper.ViewModels.Projects"
-                    xmlns:devProjects="clr-namespace:InternalDevHelper.ViewModels.Projects.DevProjects">
+                    xmlns:devProjects="clr-namespace:InternalDevHelper.ViewModels.Projects.DevProjects"
+                    xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit">
 
     <DataTemplate x:Key="MainDataTemplate"
                   DataType="{x:Type viewModels:MainViewModel}">
@@ -33,52 +34,54 @@
                     </MenuItem>
                 </MenuItem>
             </Menu>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="1*"/>
-                </Grid.ColumnDefinitions>
+            <TabControl>
+                <TabItem Header="Dev Projects">
+                    <Grid Margin="10">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
 
-                <TreeView VerticalAlignment="Stretch"
+                        <TreeView VerticalAlignment="Stretch"
                           ItemsSource="{Binding VSCodeDirectories}">
-                    <TreeView.ItemContainerStyle>
-                        <Style TargetType="{x:Type TreeViewItem}">
-                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
-                        </Style>
-                    </TreeView.ItemContainerStyle>
-                    
-                    <TreeView.ItemTemplate>
-                        <HierarchicalDataTemplate DataType="{x:Type projects:DevProject}" ItemsSource="{Binding ChildProjects}">
-                            <StackPanel Orientation="Vertical">
-                                <TextBlock Text="{Binding DisplayName}" FontSize="16" />
+                            <TreeView.ItemContainerStyle>
+                                <Style TargetType="{x:Type TreeViewItem}">
+                                    <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+                                </Style>
+                            </TreeView.ItemContainerStyle>
 
-                                <ItemsControl ItemsSource="{Binding Directories}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding}" FontSize="10" Foreground="DimGray"/>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-                        </HierarchicalDataTemplate>
-                    </TreeView.ItemTemplate>
-                </TreeView>
+                            <TreeView.ItemTemplate>
+                                <HierarchicalDataTemplate DataType="{x:Type projects:DevProject}" ItemsSource="{Binding ChildProjects}">
+                                    <StackPanel Orientation="Vertical">
+                                        <TextBlock Text="{Binding DisplayName}" FontSize="16" />
 
-                <GridSplitter Grid.Column="1"
+                                        <ItemsControl ItemsSource="{Binding Directories}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding}" FontSize="10" Foreground="DimGray"/>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+                                    </StackPanel>
+                                </HierarchicalDataTemplate>
+                            </TreeView.ItemTemplate>
+                        </TreeView>
+
+                        <GridSplitter Grid.Column="1"
                               Style="{StaticResource ColumGridSplitted}" />
 
-                <Grid Grid.Column="2"
+                        <Grid Grid.Column="2"
                       Visibility="{Binding HasSelectedVSCodeDirectory, Converter={StaticResource BooleanToVisibilityConverterHiddenIfFalse}}">
 
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <TextBlock Text="{Binding SelectedVSCodeDirectory.DisplayName}" FontSize="12"/>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="{Binding SelectedVSCodeDirectory.DisplayName}" FontSize="12"/>
 
-                    <fa:ImageAwesome Grid.Row="1"
+                            <fa:ImageAwesome Grid.Row="1"
                                      Icon="Refresh" 
                                      Spin="True" 
                                      Height="16" 
@@ -87,52 +90,69 @@
                                      HorizontalAlignment="Left"
                                      Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverterCollapsedIfFalse}}" />
 
-                    <StackPanel Grid.Row="2"
+                            <StackPanel Grid.Row="2"
                                 Margin="0 10 0 0"
                                 Orientation="Vertical">
-                        <StackPanel.Resources>
-                            <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
-                                <Setter Property="Margin" Value="0 0 0 10"/>
-                                <Setter Property="HorizontalAlignment" Value="Left"/>
-                                <Setter Property="VerticalAlignment" Value="Top"/>
-                            </Style>
-                        </StackPanel.Resources>
+                                <StackPanel.Resources>
+                                    <Style TargetType="Button" BasedOn="{StaticResource DefaultButtonStyle}">
+                                        <Setter Property="Margin" Value="0 0 0 10"/>
+                                        <Setter Property="HorizontalAlignment" Value="Left"/>
+                                        <Setter Property="VerticalAlignment" Value="Top"/>
+                                    </Style>
+                                </StackPanel.Resources>
 
-                        <Button Content="VSCode">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <command:EventToCommand Command="{Binding OpenAllDirectoriesInVSCodeCommand}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
+                                <Button Content="VSCode">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <command:EventToCommand Command="{Binding OpenAllDirectoriesInVSCodeCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
 
-                        <Button Content="Gitkraken">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <command:EventToCommand Command="{Binding OpenAllDirectoriesInGitkrakenCommand}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
+                                <Button Content="Gitkraken">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <command:EventToCommand Command="{Binding OpenAllDirectoriesInGitkrakenCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
 
-                        <Button Content="Explorer">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <command:EventToCommand Command="{Binding OpenInExplorerCommand}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
+                                <Button Content="Explorer">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <command:EventToCommand Command="{Binding OpenInExplorerCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
 
-                        <Button Content="ConEmu">
-                            <i:Interaction.Triggers>
-                                <i:EventTrigger EventName="Click">
-                                    <command:EventToCommand Command="{Binding OpenInConEmu}" />
-                                </i:EventTrigger>
-                            </i:Interaction.Triggers>
-                        </Button>
+                                <Button Content="ConEmu">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <command:EventToCommand Command="{Binding OpenInConEmu}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
 
-                    </StackPanel>
-                </Grid>
-            </Grid>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <TabItem Header="Tools">
+                    <Grid Margin="10">
+                        <StackPanel VerticalAlignment="Top" Orientation="Vertical">
+                            <TextBlock VerticalAlignment="Center">Generate Random String</TextBlock>
+                            <ComboBox ItemsSource="{Binding RandomStringLetterChoices}" SelectedItem="{Binding SelectedRandomStringLetterChoice}"/>
+                            <xctk:IntegerUpDown Padding="5" Width="100" HorizontalAlignment="Left" Value="{Binding RandomStringLength, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBox Padding="5" Text="{Binding RandomStringOutput, Mode=OneWay}" IsReadOnly="True"/>
+                            
+                            <TextBlock Margin="0 10 0 0" VerticalAlignment="Center">Generate Base64</TextBlock>
+                            <TextBox Padding="5" Text="{Binding Base64Input, UpdateSourceTrigger=PropertyChanged}"/>
+                            <TextBox Padding="5" Text="{Binding Base64Output, Mode=OneWay}" IsReadOnly="True"/>
+                        </StackPanel>
+                    </Grid>
+                </TabItem>
+            </TabControl>
         </DockPanel>
 
     </DataTemplate>

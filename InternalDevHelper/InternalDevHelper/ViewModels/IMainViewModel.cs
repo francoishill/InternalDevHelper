@@ -51,5 +51,38 @@ namespace InternalDevHelper.ViewModels
         {
             get;
         }
+
+        string Base64Input
+        {
+            get;
+            set;
+        }
+
+        string Base64Output
+        {
+            get;
+        }
+
+        ICollection<string> RandomStringLetterChoices
+        {
+            get;
+        }
+
+        string SelectedRandomStringLetterChoice
+        {
+            get;
+            set;
+        }
+
+        int RandomStringLength
+        {
+            get;
+            set;
+        }
+
+        string RandomStringOutput
+        {
+            get;
+        }
     }
 }
