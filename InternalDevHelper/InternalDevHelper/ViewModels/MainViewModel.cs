@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using InternalDevHelper.Notifications;
 using InternalDevHelper.ViewModels.Projects;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.ObjectModel;
 
 namespace InternalDevHelper.ViewModels
 {
@@ -94,6 +93,26 @@ namespace InternalDevHelper.ViewModels
                     {
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = $"--processStart=gitkraken.exe --process-start-args=\"-p {dirToOpen}\"";
+                        Process.Start(exe, args);
+                        await Task.Delay(LongLoopDelay);
+                    }
+                }
+                finally
+                {
+                    DecrementBusy();
+                }
+            });
+
+            OpenAllDirectoriesInTortoiseGitCommand = new RelayCommand(async delegate
+            {
+                IncrementBusy();
+                try
+                {
+                    var exe = @"C:\Program Files\TortoiseGit\bin\TortoiseGitProc.exe";
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    {
+                        var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
+                        var args = $"/command:sync /path:\"{dirToOpen}\"";
                         Process.Start(exe, args);
                         await Task.Delay(LongLoopDelay);
                     }
@@ -294,6 +313,12 @@ namespace InternalDevHelper.ViewModels
         }
 
         public RelayCommand OpenAllDirectoriesInGitkrakenCommand
+        {
+            get;
+            private set;
+        }
+
+        public RelayCommand OpenAllDirectoriesInTortoiseGitCommand
         {
             get;
             private set;

@@ -42,6 +42,11 @@ namespace InternalDevHelper.ViewModels
             get;
         }
 
+        RelayCommand OpenAllDirectoriesInTortoiseGitCommand
+        {
+            get;
+        }
+
         RelayCommand OpenInExplorerCommand
         {
             get;

@@ -116,6 +116,14 @@
                                         </i:EventTrigger>
                                     </i:Interaction.Triggers>
                                 </Button>
+                                
+                                <Button Content="TortoiseGit">
+                                    <i:Interaction.Triggers>
+                                        <i:EventTrigger EventName="Click">
+                                            <command:EventToCommand Command="{Binding OpenAllDirectoriesInTortoiseGitCommand}" />
+                                        </i:EventTrigger>
+                                    </i:Interaction.Triggers>
+                                </Button>
 
                                 <Button Content="Explorer">
                                     <i:Interaction.Triggers>
