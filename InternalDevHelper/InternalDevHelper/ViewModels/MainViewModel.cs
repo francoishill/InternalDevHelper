@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using InternalDevHelper.Notifications;
@@ -69,7 +70,7 @@ namespace InternalDevHelper.ViewModels
                 try
                 {
                     var exe = @"C:\Program Files (x86)\Microsoft VS Code\Code.exe";
-                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory, FlattenedMode.GetSelfAndDirectChildren))
                     {
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = dirToOpen;
@@ -89,7 +90,7 @@ namespace InternalDevHelper.ViewModels
                 try
                 {
                     var exe = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), @"gitkraken\update.exe");
-                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory, FlattenedMode.GetSelfAndDirectChildren))
                     {
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = $"--processStart=gitkraken.exe --process-start-args=\"-p {dirToOpen}\"";
@@ -109,7 +110,7 @@ namespace InternalDevHelper.ViewModels
                 try
                 {
                     var exe = @"C:\Program Files\TortoiseGit\bin\TortoiseGitProc.exe";
-                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory, FlattenedMode.GetSelfAndDirectChildren))
                     {
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = $"/command:sync /path:\"{dirToOpen}\"";
@@ -128,7 +129,7 @@ namespace InternalDevHelper.ViewModels
                 IncrementBusy();
                 try
                 {
-                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory, FlattenedMode.GetSelfAndDirectChildren))
                     {
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = $"\"{dirToOpen}\"";
@@ -148,7 +149,7 @@ namespace InternalDevHelper.ViewModels
                 try
                 {
                     var exe = @"C:\Program Files\ConEmu\ConEmu64.exe";
-                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory))
+                    foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory, FlattenedMode.GetSelfAndDirectChildren))
                     {
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
                         var args = $"-here -dir \"{dirToOpen}\" -run {{cmd}} -cur_console:n";
@@ -169,6 +170,26 @@ namespace InternalDevHelper.ViewModels
             });
             SelectedRandomStringLetterChoice = RandomStringLetterChoices.First();
             RandomStringLength = 10;
+        }
+
+        public void HandleKeyPressed(Key key, ModifierKeys modifiers)
+        {
+            if (modifiers == ModifierKeys.Control)
+            {
+                var actionOnKey = new Dictionary<Key, RelayCommand>()
+                {
+                    {Key.V, OpenAllDirectoriesInVSCodeCommand },
+                    {Key.G, OpenAllDirectoriesInGitkrakenCommand },
+                    {Key.T, OpenAllDirectoriesInTortoiseGitCommand },
+                    {Key.E, OpenInExplorerCommand },
+                    {Key.C, OpenInConEmu },
+                };
+
+                if (actionOnKey.ContainsKey(key))
+                {
+                    actionOnKey[key].Execute(null);
+                }
+            }
         }
 
         private void IncrementBusy()
@@ -251,10 +272,27 @@ namespace InternalDevHelper.ViewModels
             }
         }
 
-        private List<string> GetFlattenedDirectoriesOfProject(IDevProject project)
+        private enum FlattenedMode
+        {
+            GetAll,
+            GetSelfAndDirectChildren,
+        }
+        private List<string> GetFlattenedDirectoriesOfProject(IDevProject project, FlattenedMode mode)
         {
             var flattenedList = new List<IDevProject>();
-            AddFlattenProjects(flattenedList, project);
+            switch (mode)
+            {
+                case FlattenedMode.GetAll:
+                    AddFlattenProjects(flattenedList, project);
+                    break;
+                case FlattenedMode.GetSelfAndDirectChildren:
+                    flattenedList.Add(project);
+                    flattenedList.AddRange(project.ChildProjects);
+                    break;
+                default:
+                    throw new Exception($"Flattened Mode {mode} not supported");
+            }
+
             return flattenedList.SelectMany(p => p.Directories).ToList();
         }
 

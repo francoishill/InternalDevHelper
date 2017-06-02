@@ -5,7 +5,6 @@
                     xmlns:fa="http://schemas.fontawesome.io/icons/"
                     xmlns:command="http://www.galasoft.ch/mvvmlight"
                     xmlns:projects="clr-namespace:InternalDevHelper.ViewModels.Projects"
-                    xmlns:devProjects="clr-namespace:InternalDevHelper.ViewModels.Projects.DevProjects"
                     xmlns:xctk="http://schemas.xceed.com/wpf/xaml/toolkit">
 
     <DataTemplate x:Key="MainDataTemplate"

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;
 using InternalDevHelper.ViewModels.Projects;
 
@@ -6,6 +7,8 @@ namespace InternalDevHelper.ViewModels
 {
     public interface IMainViewModel
     {
+        void HandleKeyPressed(Key key, ModifierKeys modifiers);
+
         ICollection<IDevProject> VSCodeDirectories
         {
             get;
