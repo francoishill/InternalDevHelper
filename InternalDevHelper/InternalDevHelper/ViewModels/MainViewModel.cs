@@ -152,7 +152,7 @@ namespace InternalDevHelper.ViewModels
                     foreach (var projectDirectory in GetFlattenedDirectoriesOfProject(SelectedVSCodeDirectory, FlattenedMode.GetSelfAndDirectChildren))
                     {
                         var dirToOpen = Environment.ExpandEnvironmentVariables(projectDirectory);
-                        var args = $"-Single -here -dir \"{dirToOpen}\" -run {{cmd}} -cur_console:n";
+                        var args = $"-Single -dir \"{dirToOpen}\" -run cmd /k dev.bat";
                         Process.Start(exe, args);
                         await Task.Delay(ShortLoopDelay);
                     }
