@@ -185,7 +185,7 @@ namespace InternalDevHelper.ViewModels
                     {Key.C, OpenInConEmu },
                 };
 
-                if (actionOnKey.ContainsKey(key))
+                if (SelectedVSCodeDirectory != null && actionOnKey.ContainsKey(key))
                 {
                     actionOnKey[key].Execute(null);
                 }
